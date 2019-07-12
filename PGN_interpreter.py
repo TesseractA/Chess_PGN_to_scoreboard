@@ -1,8 +1,7 @@
 # Writing functions
 
-# After read and translate is finished, take output
-# from translate and write it into a file that can be
-# stored as text
+# This will read the string from a PGN, look for which 
+# engines are white and black, and will take scores to assign to the scoreboard.
 def interpret(file_string): 
     i = 0 # index
     numberOfEngineGames = 0
