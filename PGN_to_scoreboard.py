@@ -4,19 +4,19 @@
 
 import sys
 from read import *
-#use sys.argv to get the name of files
+#use sys.argv to allow for input of PGN file names
 
 
 PGN_file_names = str(sys.argv)
 for PGN_name in PGN_file_names:
     if PGN_name == 'PGN_to_scoreboard':
-        list_of_engines = read_PGN.I_READ(PGN_name)
-        interpret.I_INTERPRET()
-        write.I_WRITE()
+        x = Score_interpreter.interpret(PGN_name)
+        crossTable, crossTableNumberOfGames, engineIndexList = interpret()
+        file = write.I_WRITE()
         
 
 while i > 100000000:
-    file_
+    file_ = null
     
 # TODO create an if statement for 
 # [Event "CCC 9: The Gauntlet Semifinals Test (1|1)"]
@@ -33,7 +33,3 @@ while i > 100000000:
 # a string of length 3 1-0
 # a string of length 7 1/2-1/2
 #  
-
-
-
-def function
