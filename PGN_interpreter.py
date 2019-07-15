@@ -15,7 +15,7 @@ def interpret(file_string, engineNameList):  # the engineNameList does not have 
     engineIndexWhite = 0 # used for identifying the index of an engine in engineNameList
     engineIndexBlack = 0
     score = 0
-    bulletRapidClassical = 0 # will be determined by a game name.
+    bulletRapidClassical = 0 # will be determined by an event name. 1 means bullet, 2 means rapid, 3 means classical
     while i < len(file_string):
         if file_string[i:i+8] == "White \"":
             # go 7 characters forward to skip 'White "'
@@ -30,6 +30,7 @@ def interpret(file_string, engineNameList):  # the engineNameList does not have 
             engineIndexBlack = detect_engineIndex(engineNameList, engineName)
             score, i = detect_score(file_string, i)
             # colorCrossTable[engineIndexWhite][engineIndexBlack] += score for intentionally for as white/black winrates
+            trueCrossTable = expandCrossTable(engineNameList, trueCrossTable)
             trueCrossTable[engineIndexWhite][engineIndexBlack] += score
             trueCrossTable[engineIndexBlack][engineIndexWhite] += 1-score
             score = 0
@@ -37,13 +38,15 @@ def interpret(file_string, engineNameList):  # the engineNameList does not have 
             bulletRapidClassical, i = detectTimeControl(file_string, i)
             if bulletRapidClassical == 1:    
                 trueCrossTable = bulletCrossTable
-            if bulletRapidClassical == 2:
+                bulletCrossTable = trueCrossTable
+            elif bulletRapidClassical == 2:
                 trueCrossTable = rapidCrossTable
-            if bulletRapidClassical == 3:
+                rapidCrossTable = trueCrossTable
+            elif bulletRapidClassical == 3:
                 trueCrossTable = classicalCrossTable
-        ++i
-    i = 0
-    return bulletRapidClassical, bulletCrossTable, rapidCrossTable, classicalCrossTable
+                classicalCrossTable = trueCrossTable
+        i += 1
+    return bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList
         
 def read_engineName(file_string, engineName, index):
     engineNameLength = 0
@@ -58,7 +61,7 @@ def add_engineName(engineName, engineNameList):
     engineNameListLength = len(engineNameList)
     while icheck <= engineNameListLength:
         if icheck == engineNameListLength:
-            engineNameList += engineName
+            engineNameList.append(engineName)
             # if the engine's name wasn't detected in the list already
         elif engineName == engineNameList[icheck]:
             break
@@ -72,18 +75,19 @@ def detect_engineIndex(engineNameList, engineName):
             engineIndex = index
             break
         else:
-            ++index
+            index += 1
     return engineIndex
     
 def expandCrossTable(engineNameList, trueCrossTable):
     listSize = len(engineNameList) # the two dimensional array should have this size
     crossTableSize1 = len(trueCrossTable)
-    crossTableSize2 = len(trueCrossTable[0])
-    while trueCrossTable < listSize:
+    while crossTableSize1 < listSize:
         i = 0 # index the first dimension of crosstable list
+        trueCrossTable.append([])
         while trueCrossTable[i] < listSize:  
-            trueCrossTable[i] += 0
-        ++i
+            trueCrossTable[i].append(0)
+        i += 1
+    return trueCrossTable
         
 def detect_score(file_string, index):
     score = 0 # If white wins, this will be 1. If white draws, it will be 0.5.
@@ -97,8 +101,10 @@ def detect_score(file_string, index):
         elif file_string[index:index+8] == "1/2-1/2":
             score = 0.5
             break
+        elif file_string[index:index+11] == "disconnect":
+            break
         else:
-            ++index
+            index += 1
     return score, index
 
 
@@ -168,19 +174,19 @@ def detectTimeControl(file_string, i):
             initialTimeDigits = 0 # used to find out whether a symbol should be interpreted or not
             incrementTimeDigits = 0 # ^
             expectedTime = 0
-            if (is_number(file_string[i-1]) and is_number(file_string[i+1])): 
+            if (is_digit(file_string[i-1]) and is_digit(file_string[i+1])): 
                 # if both numbers are right next to the "|"
-                if is_number(file_string[i+2]): 
+                if is_digit(file_string[i+2]): 
                     incrementTimeDigits = 2
-                if is_number(file_string[i-2]): 
+                if is_digit(file_string[i-2]): 
                     initialTimeDigits = 2
                 initialTime = file_string[i+initialTimeDigits]
                 incrementTime = file_string[i+incrementTimeDigits]
-            elif (is_number(file_string[i-2]) and is_number(file_string[i+2])): 
+            elif (is_digit(file_string[i-2]) and is_digit(file_string[i+2])): 
                 # if both numbers are a spacebar away from what was expected
-                if is_number(file_string[i+3]): 
+                if is_digit(file_string[i+3]): 
                     incrementTimeDigits = 2
-                if is_number(file_string[i-3]): 
+                if is_digit(file_string[i-3]): 
                     initialTimeDigits = 2
                 initialTime = file_string[i+initialTimeDigits]
                 incrementTime = file_string[i+incrementTimeDigits]
@@ -203,12 +209,12 @@ def detectTimeControl(file_string, i):
         elif file_string[i:i+4] == "Classical":
             bulletRapidClassical = 3
             break
-        ++i
+        i += 1
     return i, bulletRapidClassical
 
 
-def is_number(string): # returns a boolean whether the string is a number or not
-    if string == '1' or '2' or '3' or '4' or '5' or '6' or '7' or '8' or '9':
+def is_digit(string): # returns a boolean whether the string is a digit or not
+    if string == '1' or string == '2' or string == '3' or string == '4' or string == '5' or string == '6' or string == '7' or string == '8' or string == '9' or string == '0':
         return True
     else:
         return False
@@ -219,7 +225,7 @@ def I_READ(a_filename):
     longest_string_in_python = filename.read()
     return longest_string_in_python
 
-def I_WRITE(a_filename):
+def I_WRITE(a_filename, writetext):
     filename = open("a_filename.txt", "w+")
-    longest_string_in_python = filename.write()
+    longest_string_in_python = filename.write(writetext)
     
