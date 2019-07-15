@@ -3,14 +3,11 @@
 # After read and translate is finished, take output
 # from translate and write it into a file that can be
 # stored as text
-def interpret(file_string, engineNameList):  # the engineNameList does not have to be populated.
+def interpret(file_string, bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList):  # the engineNameList does not have to be populated.
     i = 0 # index
     # engineNameList = engineNameList not sure if this is necessary
     # colorCrossTable = [] which can be used for wins for scoring wins as black or white heavier if the feature is wanted
     trueCrossTable = [] # it's a real crosstable! ok, it's just a placeholder.
-    bulletCrossTable = [] #verbatim
-    rapidCrossTable = [] #yep
-    classicalCrossTable = [] #having fun here
     engineName = ""
     engineIndexWhite = 0 # used for identifying the index of an engine in engineNameList
     engineIndexBlack = 0
@@ -109,7 +106,10 @@ def detect_score(file_string, index):
 
 
 def makeScoreboard(bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList, engineIndex1, engineIndex2): # returns a string
-    # this will create a visual representation of the h2h statistics for each engine v. engine
+    # this will create a visual representation of the h2h statistics for each engine v. engine 
+    bulletWeightConstant = 0.5
+    rapidWeightConstant = 0.75
+    classicalWeightConstant = 1.00
     bulletScoreOne = bulletCrossTable[engineIndex1][engineIndex2]
     bulletScoreTwo = bulletCrossTable[engineIndex2][engineIndex1]
     #blitzScoreOne = blitzCrossTable[engineIndex1][engineIndex2] if the format changes
@@ -138,19 +138,19 @@ def makeScoreboard(bulletCrossTable, rapidCrossTable, classicalCrossTable, engin
     + "\n Bullet      " 
     + (gameAmountBullet) # number of games 
     + "     " + bulletScoreOne + " - " + bulletScoreTwo #h2h game score
-    + " 0.5 " # value of bullet games
+    + " " + 0.5 + " " # value of bullet games
     + "    " + (weightedBScoreOne) + "        " + (weightedBScoreTwo) 
     # end of line 2
     + "\n Rapid      " 
     + (gameAmountRapid) 
     + "     " + rapidScoreOne + " - " + rapidScoreTwo #h2h game score
-    + " 0.75 " # value of bullet games
+    + " " + 0.75 + " " # value of bullet games
     + "    " + (weightedRScoreOne) + "        " + (weightedRScoreTwo) 
     # end of line 3
     + "\n Classical      " 
     + (gameAmountClassical) # number of games 
     + "     " + classicalScoreOne + " - " + classicalScoreTwo #h2h game score
-    + " 1.0 " # value of bullet games
+    + " " + 1.00 + " " # value of bullet games
     + "    " + (weightedCScoreOne) + "        " + (weightedCScoreTwo) 
     # end of line 4
     + "Overall                               " + weightedScoreOne + "                " + weightedScoreTwo
@@ -219,13 +219,14 @@ def is_digit(string): # returns a boolean whether the string is a digit or not
     else:
         return False
 
-
+# Reads Game Files
 def I_READ(a_filename):
     filename = open(a_filename, "r")
     longest_string_in_python = filename.read()
     return longest_string_in_python
 
+# Writes Game Files
 def I_WRITE(a_filename, writetext):
-    filename = open("a_filename.txt", "w+")
+    filename = open(a_filename + ".txt", "w+")
     longest_string_in_python = filename.write(writetext)
     
