@@ -3,34 +3,35 @@
 # After read and translate is finished, take output
 # from translate and write it into a file that can be
 # stored as text
-def interpret(file_string): 
+def interpret(file_string, engineNameList):  # the engineNameList does not have to be populated.
     i = 0 # index
-    numberOfGamesTable = []
+    # engineNameList = engineNameList not sure if this is necessary
     # colorCrossTable = [] which can be used for wins for scoring wins as black or white heavier if the feature is wanted
     trueCrossTable = [] # it's a real crosstable!
-    engineNameList = []
     engineName = ""
     engineIndexWhite = 0 # used for identifying the index of an engine in engineNameList
     engineIndexBlack = 0
     score = 0
-    engineScores = []
+    bulletRapidClassical = 0 # will be determined by a game name.
     while i < len(file_string):
         if file_string[i:i+7] == "White \"":
             # go 7 characters forward to skip 'White "'
             i += 7
             engineName = read_engineName(file_string, engineNameList, i)
-            engineNameList = check_engineName(engineName, engineNameList)
+            engineNameList = add_engineName(engineName, engineNameList)
             engineIndexWhite = detect_engineIndex(engineNameList, engineName)
         elif file_string[i:i+7] == "Black \"":
             i += 7
             engineName = read_engineName(file_string, engineNameList, i)
-            engineNameList = check_engineName(engineName, engineNameList)
+            engineNameList = add_engineName(engineName, engineNameList)
             engineIndexBlack = detect_engineIndex(engineNameList, engineName)
-            score = detect_score(file_string, i)
+            i, score = detect_score(file_string, i)
             # colorCrossTable[engineIndexWhite][engineIndexBlack] += score for intentionally for as white/black winrates
             trueCrossTable[engineIndexWhite][engineIndexBlack] += score
             trueCrossTable[engineIndexBlack][engineIndexWhite] += 1-score
             score = 0
+        elif file_string[i:i+5] == "Event":
+            i, bulletRapidClassical = detectBulletRapidClassical(file_string, i)
         ++i
     i = 0
     
@@ -41,7 +42,9 @@ def read_engineName(file_string, engineName, index):
         engineNameLength += 1
     engineName = file_string[index, index+engineNameLength]
     return engineName
-def check_engineName(engineName, engineNameList):
+    
+def add_engineName(engineName, engineNameList): 
+    # adds an engineName to the list if it isn't already in the list
     icheck = 0 # engine name index
     engineNameListLength = len(engineNameList)
     while icheck <= engineNameListLength:
@@ -51,6 +54,7 @@ def check_engineName(engineName, engineNameList):
         elif engineName == engineNameList[icheck]:
             break
     return engineNameList
+    
 def detect_engineIndex(engineNameList, engineName):
     index = 0
     engineIndex = 0
@@ -61,8 +65,17 @@ def detect_engineIndex(engineNameList, engineName):
         else:
             ++index
     return engineIndex
-            
-            
+    
+def expandCrossTable(engineNameList, trueCrossTable):
+    listSize = len(engineNameList) # the two dimensional array should have this size
+    crossTableSize1 = len(trueCrossTable)
+    crossTableSize2 = len(trueCrossTable[0])
+    while trueCrossTable < listSize:
+        i = 0 # index the first dimension of crosstable list
+        while trueCrossTable[i] < listSize:  
+            trueCrossTable[i] += 0
+        ++i
+        
 def detect_score(file_string, index):
     score = 0 # If white wins, this will be 1. If white draws, it will be 0.5.
     index += 40 # hopefully speeds the reading along a bit, this feature can be disabled.
@@ -80,13 +93,79 @@ def detect_score(file_string, index):
     return index, score
 
 
-def crosstableVisual(trueCrossTable, numberOfGamesCrosstable):
-    # this will create a visual representation
-    nice = 1
-def detectBulletRapidClassical(file_string):
-    i = 0
+def makeScoreboard(bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList, engineIndex1, engineIndex2): # returns a string
+    # this will create a visual representation of the h2h statistics for each engine v. engine
+    bulletScoreOne = bulletCrossTable[engineIndex1][engineIndex2]
+    bulletScoreTwo = bulletCrossTable[engineIndex2][engineIndex1]
+    #blitzScoreOne = blitzCrossTable[engineIndex1][engineIndex2] if the format changes
+    #blitzScoreTwo = blitzCrossTable[engineIndex1][engineIndex2]
+    rapidScoreOne = rapidCrossTable[engineIndex1][engineIndex2]
+    rapidScoreTwo = rapidCrossTable[engineIndex2][engineIndex1]
+    classicalScoreOne = classicalCrossTable[engineIndex1][engineIndex2]
+    classicalScoreTwo = classicalCrossTable[engineIndex2][engineIndex1]
+    gameAmountBullet = amountOfGames(bulletCrossTable, engineIndex1, engineIndex2)
+    #gameAmountBlitz = amountOfGames(blitzCrossTable, engineIndex1, engineIndex2)
+    gameAmountRapid = amountOfGames(rapidCrossTable, engineIndex1, engineIndex2)
+    gameAmountClassical = amountOfGames(classicalCrossTable, engineIndex1, engineIndex2)
+    weightedBScoreOne = bulletScoreOne * 0.5
+    weightedBScoreTwo = bulletScoreTwo * 0.5
+    #weightedBZScoreOne = blitzScoreOne
+    #weightedBZScoreTwo = blitzScoreTwo
+    weightedRScoreOne = rapidScoreOne * 0.75
+    weightedRScoreTwo = rapidScoreTwo * 0.75
+    weightedCScoreOne = classicalScoreOne * 1.0
+    weightedCScoreTwo = classicalScoreTwo * 1.0
+    weightedScoreOne = weightedBScoreOne + weightedRScoreOne + weightedCScoreOne
+    weightedScoreTwo = weightedBScoreTwo + weightedRScoreTwo + weightedCScoreTwo
+    crossTableVisual = " Event      Games     Score     Weight    " 
+    + engineNameList[engineIndex1] + " Score " + engineNameList[engineIndex2] + " Score "
+    #end of line 1
+    + "\n Bullet      " 
+    + (gameAmountBullet) # number of games 
+    + "     " + bulletScoreOne + " - " + bulletScoreTwo #h2h game score
+    + " 0.5 " # value of bullet games
+    + "    " + (weightedBScoreOne) + "        " + (weightedBScoreTwo) 
+    # end of line 2
+    + "\n Rapid      " 
+    + (gameAmountRapid) 
+    + "     " + rapidScoreOne + " - " + rapidScoreTwo #h2h game score
+    + " 0.75 " # value of bullet games
+    + "    " + (weightedRScoreOne) + "        " + (weightedRScoreTwo) 
+    # end of line 3
+    + "\n Classical      " 
+    + (gameAmountClassical) # number of games 
+    + "     " + classicalScoreOne + " - " + classicalScoreTwo #h2h game score
+    + " 1.0 " # value of bullet games
+    + "    " + (weightedCScoreOne) + "        " + (weightedCScoreTwo) 
+    # end of line 4
+    + "Overall                               " + weightedScoreOne + "                " + weightedScoreTwo
+    # end of line 5
+    return crossTableVisual
+    
+def amountOfGames(realCrossTable, engineIndex1, engineIndex2): # will return amount of games played between 2 engines
+    gameAmount = realCrossTable[engineIndex1][engineIndex2] + realCrossTable[engineIndex1][engineIndex2]
+    return gameAmount
+    
+def detectBulletRapidClassical(file_string, i):
+    # 1 = bullet 2 = rapid 3 = classical while 0 probably indicates an error.
+    bulletRapidClassical = 0
     while i < len(file_string):
-        nice = 1
+        if file_string[i] == "|":
+            if file_string[i-1:i+1]:
+                bulletRapidClassical = 1
+            elif file_string[i-1:i+1]:
+                bulletRapidClassical = 2
+            elif file_string[i-1:i+1]:
+                bulletRapidClassical = 3
+        if file_string[i:i+7] == "Bullet" or file_string[i:i+4] == "1|2":
+            bulletRapidClassical = 1
+            break
+        elif file_string[i:i+8] == "Rapid" or file_string[i:i+4] == "5|2":
+            bulletRapidClassical = 2
+            break
+        elif file_string[i:i+4] == "Classical" or file_string[i:i+5] == "15|3":
+            bulletRapidClassical = 3
+            break
 
 
 def I_READ(a_filename):
