@@ -3,7 +3,10 @@
 # After read and translate is finished, take output
 # from translate and write it into a file that can be
 # stored as text
-def interpret(file_string, bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList):  # the engineNameList does not have to be populated.
+def interpret(file_string, bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList):
+    # file_string is the text of a file in string form
+    # the bulletCrossTable, rapidCrossTable and classicalCrosstable are 2-D arrays, but can be initialized as just an array
+    # none of these lists have to be populated, they are initialized elsewhere
     i = 0 # index
     # engineNameList = engineNameList not sure if this is necessary
     # colorCrossTable = [] which can be used for wins for scoring wins as black or white heavier if the feature is wanted
@@ -132,29 +135,32 @@ def makeScoreboard(bulletCrossTable, rapidCrossTable, classicalCrossTable, engin
     weightedCScoreTwo = classicalScoreTwo * 1.0
     weightedScoreOne = weightedBScoreOne + weightedRScoreOne + weightedCScoreOne
     weightedScoreTwo = weightedBScoreTwo + weightedRScoreTwo + weightedCScoreTwo
-    crossTableVisual = " Event      Games     Score     Weight    " 
+    crossTableVisual = "\n Event      Games     Score     Weight    " 
     + engineNameList[engineIndex1] + " Score " + engineNameList[engineIndex2] + " Score "
     #end of line 1
-    + "\n Bullet      " 
-    + (gameAmountBullet) # number of games 
-    + "     " + bulletScoreOne + " - " + bulletScoreTwo #h2h game score
-    + " " + 0.5 + " " # value of bullet games
-    + "    " + (weightedBScoreOne) + "        " + (weightedBScoreTwo) 
-    # end of line 2
-    + "\n Rapid      " 
-    + (gameAmountRapid) 
-    + "     " + rapidScoreOne + " - " + rapidScoreTwo #h2h game score
-    + " " + 0.75 + " " # value of bullet games
-    + "    " + (weightedRScoreOne) + "        " + (weightedRScoreTwo) 
-    # end of line 3
-    + "\n Classical      " 
-    + (gameAmountClassical) # number of games 
-    + "     " + classicalScoreOne + " - " + classicalScoreTwo #h2h game score
-    + " " + 1.00 + " " # value of bullet games
-    + "    " + (weightedCScoreOne) + "        " + (weightedCScoreTwo) 
-    # end of line 4
-    + "Overall                               " + weightedScoreOne + "                " + weightedScoreTwo
-    # end of line 5
+    if gameAmountBullet != 0:
+        crossTableVisual += "\n Bullet      " 
+        + (gameAmountBullet) # number of games 
+        + "     " + bulletScoreOne + " - " + bulletScoreTwo #h2h game score
+        + " " + 0.5 + " " # value of bullet games
+        + "    " + (weightedBScoreOne) + "        " + (weightedBScoreTwo) 
+        # end of line 2
+    if gameAmountRapid != 0:
+        crossTableVisual += "\n Rapid      " 
+        + (gameAmountRapid) 
+        + "     " + rapidScoreOne + " - " + rapidScoreTwo #h2h game score
+        + " " + 0.75 + " " # value of bullet games
+        + "    " + (weightedRScoreOne) + "        " + (weightedRScoreTwo) 
+        # end of line 3
+    if gameAmountClassical != 0:
+        crossTableVisual += "\n Classical      " 
+        + (gameAmountClassical) # number of games 
+        + "     " + classicalScoreOne + " - " + classicalScoreTwo #h2h game score
+        + " " + 1.00 + " " # value of bullet games
+        + "    " + (weightedCScoreOne) + "        " + (weightedCScoreTwo) 
+        # end of line 4
+        crossTableVisual += "Overall                               " + weightedScoreOne + "                " + weightedScoreTwo
+        # end of line 5
     print(crossTableVisual)
     return crossTableVisual
     
@@ -225,8 +231,9 @@ def I_READ(a_filename):
     longest_string_in_python = filename.read()
     return longest_string_in_python
 
-# Writes Game Files
-def I_WRITE(a_filename, writetext):
+# takes in a name a_filename, and writes the writetext string in that file
+def I_WRITE(a_filename, writetext): 
     filename = open(a_filename + ".txt", "w+")
     longest_string_in_python = filename.write(writetext)
+    
     
