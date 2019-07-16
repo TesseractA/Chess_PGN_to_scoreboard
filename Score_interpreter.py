@@ -1,2 +1,0 @@
-class _scoreboard(engineNameList, ):
-    
