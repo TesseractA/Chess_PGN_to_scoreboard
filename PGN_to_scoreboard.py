@@ -1,4 +1,7 @@
 # PGN-To-Scoreboard
+# Written by TesseractA (tesseractwxyz@gmail.com)
+# First release on July 13, 2019
+# https://github.com/TesseractA/Chess_PGN_to_scoreboard/edit/master/PGN_to_scoreboard.py
 
 import sys
 #use sys.argv to allow for input of PGN file names
