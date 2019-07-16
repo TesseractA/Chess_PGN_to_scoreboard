@@ -3,11 +3,12 @@
 import sys
 #use sys.argv to allow for input of PGN file names
 
+__main__()
+
 def __main__():
     scoreboard = "" # Will be appended to
     file_name_list = []
     PGN_file_names = str(sys.argv)
-    PGN_file_names = ['/Users/gj/scoreboard_from_PGN/ccc-9-the-gauntlet-semifinals-1.pgn']
     bulletCrossTable, rapidCrossTable, classicalCrossTable, engineNameList = [], [], [], []
     for PGN_name in PGN_file_names:
         print("Hello, world!")
