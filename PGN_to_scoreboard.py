@@ -355,33 +355,42 @@ def detectTimeControl(file_string, i):
                     i = initial_i
                     break
                 elif file_string[i] == "+" and (is_digit(file_string[i-1]) and is_digit(file_string[i+1])): 
-                        # if both numbers are right next to the "+"
-                        if is_digit(file_string[i+2]): 
-                            if is_digit(file_string[i+3]): 
-                                if is_digit(file_string[i+4]):
-                                    incrementTimeDigits = 4
-                                else:
-                                    incrementTimeDigits = 3
+                    # if both numbers are right next to the "+"
+                    if is_digit(file_string[i+2]): 
+                        if is_digit(file_string[i+3]): 
+                            if is_digit(file_string[i+4]):
+                                incrementTimeDigits = 4
                             else:
-                                incrementTimeDigits = 2
+                                incrementTimeDigits = 3
                         else:
-                            incrementTimeDigits = 1
-                        if is_digit(file_string[i-2]):
-                            if is_digit(file_string[i-3]): 
-                                if is_digit(file_string[i-4]):    
-                                    initialTimeDigits = 4
-                                else:
-                                    initialTimeDigits = 3
+                            incrementTimeDigits = 2
+                    else:
+                        incrementTimeDigits = 1
+                    if is_digit(file_string[i-2]):
+                        if is_digit(file_string[i-3]): 
+                            if is_digit(file_string[i-4]):    
+                                initialTimeDigits = 4
                             else:
-                                initialTimeDigits = 2
+                                initialTimeDigits = 3
                         else:
-                            initialTimeDigits = 1
-                        initialTime = int(file_string[i-initialTimeDigits:i]) # initial time in seconds
-                        incrementTime = int(file_string[i+1:i+incrementTimeDigits+1]) # increment time in seconds
-                        expectedTime = computeTimeTC(initialTime, incrementTime)
+                            initialTimeDigits = 2
+                    else:
+                        initialTimeDigits = 1
+                    initialTime = int(file_string[i-initialTimeDigits:i]) # initial time in seconds
+                    incrementTime = int(file_string[i+1:i+incrementTimeDigits+1]) # increment time in seconds
+                    expectedTime = computeTimeTC(initialTime, incrementTime)
+                    print("Expected time: " + str(expectedTime))
+                    if expectedTime < 360:
+                        bulletRapidClassical = 1
+                        break
+                    elif expectedTime < 540:
+                        bulletRapidClassical = 2
+                        break
+                    else:
+                        bulletRapidClassical = 3
                         break
                 elif file_string[i] == "+" and (is_digit(file_string[i-2]) and is_digit(file_string[i+2])): 
-                    # if both numbers are a spacebar away from what was expected
+                    # if both numbers are a spacebar away from the + that was expected
                     if is_digit(file_string[i+3]): 
                         if is_digit(file_string[i+4]): 
                             if is_digit(file_string[i+5]):
@@ -405,6 +414,16 @@ def detectTimeControl(file_string, i):
                     initialTime = int(file_string[i-initialTimeDigits:i])
                     incrementTime = int(file_string[i+1:i+incrementTimeDigits+1])
                     expectedTime = computeTimeTC(initialTime, incrementTime)
+                    print("Expected time: " + str(expectedTime))
+                    if expectedTime < 360:
+                        bulletRapidClassical = 1
+                        break
+                    elif expectedTime < 540:
+                        bulletRapidClassical = 2
+                        break
+                    else:
+                        bulletRapidClassical = 3
+                        break
                 else:
                     i += 1  
         else:
